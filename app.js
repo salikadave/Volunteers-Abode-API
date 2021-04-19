@@ -7,10 +7,10 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 // import routes here
+const neo4j_calls = require('./db-init');
 
 // Configure ENV variables
 dotenv.config();
-console.log(process.env.MONGO_ATLAS_URI);
 
 // Establish Connection with DB
 mongoose
@@ -45,6 +45,14 @@ app.use(require("./routes/post"));
 app.get("/", checkAuth, (req, res) => {
   res.send({ userName: req.user.userName });
 });
+
+// Handle Neo4j Calls
+app.get('/neo4j_get', async function (req, res, next) {
+  let result = await neo4j_calls.get_num_nodes();
+  console.log("RESULT IS", result)
+  res.status(200).send({ result })    //Can't send just a Number; encapsulate with {} or convert to String.     
+  return { result };
+})
 
 // Handle default route
 
