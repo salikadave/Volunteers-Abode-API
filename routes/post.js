@@ -5,7 +5,7 @@ const checkAuth = require("../middleware/checkAuth");
 
 const Post = mongoose.model("Post");
 
-router.get("/allpost", (req, res) => {
+router.get("/allpost", checkAuth, (req, res) => {
   Post.find()
     .populate("postedBy", "_id userName")
     .then((posts) => {
@@ -16,16 +16,21 @@ router.get("/allpost", (req, res) => {
     });
 });
 
+
+
+
 router.post("/createpost", checkAuth, (req, res) => {
-  const { title, body } = req.body;
-  if (!title || !body) {
+  const { image, body } = req.body;
+  console.log(image , body)
+  if (!image || !body) {
     return res.status(422).json({ error: "Plase add all the fields" });
   }
 
   req.user.password = undefined;
   const post = new Post({
-    title,
+    // title,
     body,
+    photo : image,
     postedBy: req.user,
   });
   post
