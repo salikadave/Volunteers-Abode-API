@@ -16,6 +16,9 @@ router.get("/allpost", checkAuth, (req, res) => {
     });
 });
 
+
+
+
 router.post("/createpost", checkAuth, (req, res) => {
   const { image, body } = req.body;
   console.log(image , body)

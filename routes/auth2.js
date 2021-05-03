@@ -7,10 +7,7 @@ const jwt = require("jsonwebtoken");
 const checkAuth = require("../middleware/checkAuth");
 const User = mongoose.model("User");
 
-const JWT_SECRET = process.env.JWT_SECRET
-
-
-
+const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post("/signup", (req, res) => {
   const { userType, userName, email, password } = req.body;
@@ -28,13 +25,13 @@ router.post("/signup", (req, res) => {
           email,
           password: hashedpassword,
           userName,
-          userType
+          userType,
         });
         user
           .save()
           .then((user) => {
             // res.json({message: "saved successfully"})
-            const token = jwt.sign({ _id: user._id },JWT_SECRET);
+            const token = jwt.sign({ _id: user._id }, JWT_SECRET);
             res.send({ token });
           })
           .catch((err) => {
@@ -49,7 +46,7 @@ router.post("/signup", (req, res) => {
 
 router.post("/signin", (req, res) => {
   const { email, password } = req.body;
-  console.log(req.body)
+  console.log(req.body);
   if (!email || !password) {
     return res.status(422).json({ error: "please add email or password" });
   }
