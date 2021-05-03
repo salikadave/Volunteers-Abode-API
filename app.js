@@ -7,7 +7,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 // import routes here
-const neo4j_calls = require("./db-init");
+// const neo4j_calls = require("./db-init");
 
 // Configure ENV variables
 dotenv.config();
@@ -44,24 +44,35 @@ app.use(cors());
 //   res.send({ userName: req.user.userName });
 // });
 
-// Handle Neo4j Calls
+app.use((req, res, next) => {
+  req.neo4j = require("./db-init");
+  next();
+});
+
+// Sample Neo4j Calls
 app.get("/neo4j_get", async function (req, res, next) {
-  // let result = await neo4j_calls.get_num_nodes();
-  // console.log("RESULT IS", result)
-  // res.status(200).send({ result })    //Can't send just a Number; encapsulate with {} or convert to String.
-  // return { result };
-  neo4j_calls
-    .read("MATCH n RETURN n LIMIT 25")
-    .then((result) => {
-      return result;
-    })
-    .then((result2) => {
-      console.log(result2);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  req.neo4j
+    .read("MATCH (n) RETURN count(n) AS count")
+    .then((result) => result.records[0].get("count").toNumber())
+    .then((count) =>
+      res.json({
+        status: "OK",
+        count: count,
+      })
+    )
+    .catch((err) => console.log(err));
   // console.log(result);
+});
+
+// Get All Volunteer Data
+app.get("/volunteers", (req, res, next) => {
+  req.neo4j
+    .read("MATCH (v:Volunteer) RETURN v {.firstName, .about} as details")
+    .then((result) => result.records.map((row) => row.get("details")))
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((err) => console.log(err));
 });
 
 // Handle default route
