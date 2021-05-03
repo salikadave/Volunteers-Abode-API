@@ -83,7 +83,7 @@ const createNgo = (user, req, res) => {
     .write(query("create-ngo-admin"), user)
     .then((result) => result.records[0].get("n"))
     .then((data) => {
-      const access_token = jwt.sign({ _id: user._id }, JWT_SECRET);
+      const access_token = jwt.sign({ _id: data.properties.id }, JWT_SECRET);
       res.status(200).json({
         token: access_token,
         message: "User added successfully!",
@@ -98,59 +98,60 @@ const createNgo = (user, req, res) => {
     });
 };
 
-router.post("/login", (req, res, next) => {
-  console.log("inside user login");
-  res.json({
-    message: "inside user login",
-  });
-});
-
-// router.post(
-//   "/",
-//   [
-//     check("user.username").notEmpty(),
-//     check("user.email").notEmpty().isEmail(),
-//     check("user.password").notEmpty(),
-//   ],
-//   validate,
-//   (req, res, next) => {
-//     const { user } = req.body;
-
-//     user.password = bcrypt.hashSync(user.password, rounds);
-//     user.bio = user.bio || null;
-//     user.image = user.image || null;
-
-//     // Create User
-//     req.neo4j
-//       .write(cypher("create-user"), user)
-//       // Convert to user entity
-//       .then((res) => {
-//         const user = new User(res.records[0].get("u"));
-
-//         return {
-//           ...user.toJson(),
-//           // Generate a JWT token
-//           token: generateToken(user.getClaims()),
-//         };
-//       })
-//       // Return the output
-//       .then((user) => res.json({ user }))
-//       // Pass any errors to the next middleware
-//       .catch(next);
-//   }
-// );
-
 // USER LOGIN
 
-// router.post("/login", passport.authenticate("local"), (req, res, next) => {
-//   res.status(201).json({
-//     user: {
-//       // Use user bound to request
-//       ...req.user.toJson(),
-//       // Generate a JWT token
-//       token: generateToken(req.user.getClaims()),
-//     },
-//   });
-// });
+router.post("/login", (req, res, next) => {
+  const { email, password } = req.body;
+  req.neo4j
+    .read("MATCH (n {emailID: $email}) RETURN n {.id, .password}", {
+      email: email,
+    })
+    .then((result) => {
+      return result.records[0];
+    })
+    .then((data) => {
+      if (data.length < 0) {
+        return res.status(422).json({ error: "Invalid Email or password" });
+      } else {
+        console.log(data);
+        bcrypt
+          .compare(password, data._fields[0].password)
+          .then((doMatch) => {
+            if (doMatch) {
+              // res.json({message:"successfully signed in"})
+              const access_token = jwt.sign(
+                { _id: data._fields[0].id },
+                JWT_SECRET
+              );
+              res.json({
+                token: access_token,
+                message: "Logged in successfully!",
+                id: data._fields[0].id,
+              });
+            } else {
+              return res
+                .status(422)
+                .json({ error: "Invalid Email or password" });
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+      let userDetails = {
+        id: data._fields[0],
+        pass: data._fields[1],
+      };
+    })
+    .catch((err) => console.log(err));
+  // res.status(201).json({
+  //   user: {
+  //     // Use user bound to request
+  //     ...req.user.toJson(),
+  //     // Generate a JWT token
+  //     token: generateToken(req.user.getClaims()),
+  //   },
+  // });
+});
 
 module.exports = router;
