@@ -1,7 +1,7 @@
 let neo4j = require("neo4j-driver");
 // let { creds } = require("./../config/credentials");
 let driver = neo4j.driver(
-  "bolt://0.0.0.0:7687",
+  "bolt://localhost:7687",
   neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PWD)
 );
 
@@ -29,4 +29,39 @@ exports.create_user = async function (name) {
     return user;
   }
   return user.records[0].get(0).properties.name;
+};
+
+module.exports = {
+  read: async (cypher, params = {}, database = process.env.NEO4J_DB) => {
+    const session = driver.session({
+      defaultAccessMode: neo4j.session.READ,
+      database,
+    });
+
+    try {
+      const res = await session
+        .run(cypher, params);
+      session.close();
+      return res;
+    } catch (e) {
+      session.close();
+      throw e;
+    }
+  },
+  write: async (cypher, params = {}, database = process.env.NEO4J_DB) => {
+    const session = driver.session({
+      defaultAccessMode: neo4j.session.WRITE,
+      database,
+    });
+
+    try {
+      const res = await session
+        .run(cypher, params);
+      session.close();
+      return res;
+    } catch (e) {
+      session.close();
+      throw e;
+    }
+  },
 };

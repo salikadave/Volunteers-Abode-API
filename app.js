@@ -3,25 +3,25 @@ const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
 // import routes here
-const neo4j_calls = require('./db-init');
+const neo4j_calls = require("./db-init");
 
 // Configure ENV variables
 dotenv.config();
 
-// Establish Connection with DB
-mongoose
-  .connect(process.env.MONGO_ATLAS_URI, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-  })
-  .then((result) => {
-    console.log("Database connected!");
-  })
-  .catch((err) => console.log(err));
+// Establish Connection with Mongo DB
+// mongoose
+//   .connect(process.env.MONGO_ATLAS_URI, {
+//     useUnifiedTopology: true,
+//     useNewUrlParser: true,
+//   })
+//   .then((result) => {
+//     console.log("Database connected!");
+//   })
+//   .catch((err) => console.log(err));
 
 // Parse Incoming Request Body
 app.use(morgan("combined"));
@@ -34,25 +34,35 @@ app.use(cors());
 // app.use("/socialWorker", productRoutes);
 // app.use("/ngoAdmin", orderRoutes);
 
-// Picked from previous repo
+// require("./models/user");
+// require("./models/post");
+// const checkAuth = require("./middleware/checkAuth");
 
-require("./models/user");
-require("./models/post");
-const checkAuth = require("./middleware/checkAuth");
-
-app.use(require("./routes/auth"));
-app.use(require("./routes/post"));
-app.get("/", checkAuth, (req, res) => {
-  res.send({ userName: req.user.userName });
-});
+// app.use(require("./routes/auth"));
+// app.use(require("./routes/post"));
+// app.get("/", checkAuth, (req, res) => {
+//   res.send({ userName: req.user.userName });
+// });
 
 // Handle Neo4j Calls
-app.get('/neo4j_get', async function (req, res, next) {
-  let result = await neo4j_calls.get_num_nodes();
-  console.log("RESULT IS", result)
-  res.status(200).send({ result })    //Can't send just a Number; encapsulate with {} or convert to String.     
-  return { result };
-})
+app.get("/neo4j_get", async function (req, res, next) {
+  // let result = await neo4j_calls.get_num_nodes();
+  // console.log("RESULT IS", result)
+  // res.status(200).send({ result })    //Can't send just a Number; encapsulate with {} or convert to String.
+  // return { result };
+  neo4j_calls
+    .read("MATCH n RETURN n LIMIT 25")
+    .then((result) => {
+      return result;
+    })
+    .then((result2) => {
+      console.log(result2);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  // console.log(result);
+});
 
 // Handle default route
 
