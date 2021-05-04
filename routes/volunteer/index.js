@@ -4,6 +4,6 @@ const router = require("express").Router();
 router.use("/get", require("./details"));
 // Update volunteer details
 router.use("/update", require("./update"));
-// router.use("/delete", require("./delete"));
+router.use("/delete", require("./delete"));
 
 module.exports = router;
