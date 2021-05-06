@@ -1,7 +1,7 @@
 let neo4j = require("neo4j-driver");
 // let { creds } = require("./../config/credentials");
 let driver = neo4j.driver(
-  "bolt://localhost:7687",
+  process.env.NEO4J_DB,
   neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PWD)
 );
 
