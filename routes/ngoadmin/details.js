@@ -5,10 +5,8 @@ const jwt = require("jsonwebtoken");
 const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 // FETCH ALL NGO
-router.get("/", (req, res) => {
+router.get("/", checkAuth,(req, res) => {
   req.neo4j
     .read("MATCH (n:NgoAdmin) RETURN n {.id, .ngoName, .emailID} as details")
     .then((result) => result.records.map((row) => row.get("details")))
@@ -18,7 +16,7 @@ router.get("/", (req, res) => {
 });
 
 // FETCH SINGLE NGO
-router.get("/:id", (req, res) => {
+router.get("/:id", checkAuth, (req, res) => {
   req.neo4j
     .read(query("get-ngo-detail"), { userID: req.params.id })
     .then((result) => result.records[0].get("n"))
