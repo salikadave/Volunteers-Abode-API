@@ -5,10 +5,8 @@ const jwt = require("jsonwebtoken");
 const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 // UPDATE BY ID
-router.delete("/:id", (req, res) => {
+router.delete("/:id", checkAuth, (req, res) => {
   let cypherParams = {
     id: req.params.id,
     userEmail: req.body.email,

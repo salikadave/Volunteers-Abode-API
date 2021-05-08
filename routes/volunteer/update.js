@@ -5,10 +5,8 @@ const jwt = require("jsonwebtoken");
 const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 // UPDATE BY ID
-router.put("/:id", (req, res) => {
+router.put("/:id", checkAuth, (req, res) => {
   const { ...properties } = req.body;
   let cypherParams = {
     id: req.params.id,
