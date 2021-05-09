@@ -1,54 +1,86 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const query = require("../cypher");
 const checkAuth = require("../middleware/checkAuth");
+const { route } = require("./volunteer/details");
 
-const Post = mongoose.model("Post");
+// FETCH ALL VOLUNTEERS
+// router.get("/", checkAuth, (req, res) => {
+// req.neo4j
+//   .read("MATCH (v:Volunteer) RETURN v {.id, .userName, .emailID} as details")
+//   .then((result) => result.records.map((row) => row.get("details")))
+//   .then((data) => {
+//     res.status(200).json(data);
+//   });
+// });
 
-router.get("/allpost", checkAuth, (req, res) => {
-  Post.find()
-    .populate("postedBy", "_id userName")
-    .then((posts) => {
-      res.json({ posts });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+// VIEW All posts by user ID
 
-router.post("/createpost", checkAuth, (req, res) => {
-  const { image, body } = req.body;
-  console.log(image , body)
-  if (!image || !body) {
-    return res.status(422).json({ error: "Plase add all the fields" });
+// router.get("/:userID", checkAuth, (req, res) => {});
+
+// Post details by post ID
+
+// Create post --> check usertype and then select the cypher query
+router.post("/", checkAuth, (req, res) => {
+  const params = {
+    creatorID: req.body.postedBy,
+    postTitle: req.body.title,
+    postBody: req.body.body,
+    url: req.body.photo,
+  };
+  console.log(params);
+  if (
+    !params.url ||
+    !params.creatorID ||
+    !params.postTitle ||
+    !params.postBody
+  ) {
+    return res.status(422).json({ error: "Please add all the fields" });
+  } else {
+    switch (req.body.userType) {
+      case 0:
+        volunteerHandler(req, res, params);
+        break;
+      case 1:
+        ngoHandler(req, res, params);
+        break;
+      default:
+        console.log("Default statement switch");
+        res.status(422).json({
+          message: "User type not mentioned!",
+        });
+    }
   }
-
-  req.user.password = undefined;
-  const post = new Post({
-    // title,
-    body,
-    photo : image,
-    postedBy: req.user,
-  });
-  post
-    .save()
-    .then((result) => {
-      res.json({ post: result });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 });
 
-router.get("/mypost", checkAuth, (req, res) => {
-  Post.find({ postedBy: req.user._id })
-    .populate("postedBy", "_id userName")
-    .then((myposts) => {
-      res.json({ myposts });
+const volunteerHandler = (req, res, params) => {
+  req.neo4j
+    .write(query("create-post-volunteer"), params)
+    .then((result) => result.records[0].get("p"))
+    .then((data) => {
+      res.status(200).send({
+        message: "Post created successfully!",
+        details: data.properties,
+      });
     })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+    .catch((err) => console.log(err));
+};
+const ngoHandler = (req, res, params) => {
+  req.neo4j
+    .write(query("create-post-ngo"), params)
+    .then((result) => result.records[0].get("p"))
+    .then((data) => {
+      res.status(200).send({
+        message: "Post created successfully!",
+        details: data.properties,
+      });
+    })
+    .catch((err) => console.log(err));
+};
+
+// edit post
+
+// delete post
 
 module.exports = router;
