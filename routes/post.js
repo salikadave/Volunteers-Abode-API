@@ -80,6 +80,30 @@ const ngoHandler = (req, res, params) => {
 };
 
 // edit post
+router.put("/:postID", checkAuth, (req, res) => {
+  const { ...properties } = req.body;
+  let cypherParams = {
+    id: req.params.postID,
+    properties: properties,
+  };
+  //   res.send({ properties });
+  req.neo4j
+    .write(query("update-post"), cypherParams)
+    .then((results) => results.records[0])
+    .then((data) => {
+      res.status(200).json({
+        message: "Data updated successfully!",
+        dataUpdated: data._fields[0].properties,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: "Error occured in updating post details",
+        err: err,
+      });
+    });
+});
 
 // delete post
 
