@@ -92,7 +92,7 @@ router.put("/:postID", checkAuth, (req, res) => {
     .then((results) => results.records[0])
     .then((data) => {
       res.status(200).json({
-        message: "Data updated successfully!",
+        message: "Post updated successfully!",
         dataUpdated: data._fields[0].properties,
       });
     })
@@ -106,5 +106,26 @@ router.put("/:postID", checkAuth, (req, res) => {
 });
 
 // delete post
+router.delete("/:postID", checkAuth, (req, res) => {
+  let cypherParams = {
+    pID: req.params.postID,
+    creatorID: req.body.userID,
+  };
+  req.neo4j
+    .write(query("delete-post"), cypherParams)
+    .then((results) => results.records[0])
+    .then((data) => {
+      res.status(200).json({
+        message: "Post deleted successfully!"
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        message: "Error occured in deleting post",
+        err: err,
+      });
+    });
+});
 
 module.exports = router;
