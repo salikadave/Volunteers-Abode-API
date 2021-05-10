@@ -12,6 +12,12 @@ router.get("/", checkAuth, (req, res) => {
     .then((result) => result.records.map((row) => row.get("details")))
     .then((data) => {
       res.status(200).json(data);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        err: err,
+        message: "Server currently not available, please try again later.",
+      });
     });
 });
 
