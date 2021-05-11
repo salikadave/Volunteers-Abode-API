@@ -12,6 +12,12 @@ router.get("/", checkAuth, (req, res) => {
     .then((result) => result.records.map((row) => row.get("details")))
     .then((data) => {
       res.status(200).json(data);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        err: err,
+        message: "Server currently not available, please try again later.",
+      });
     });
 });
 
@@ -26,6 +32,27 @@ router.get("/:id", checkAuth, (req, res) => {
     .catch((err) => {
       console.log(err);
       res.status(404).json({ error: err, message: "User does not exist" });
+    });
+});
+
+// FETCH ALL POSTS
+router.get("/posts/:id", checkAuth, (req, res) => {
+  req.neo4j
+    .read(query("all-posts-volunteer"), { userID: req.params.id })
+    .then((result) => result.records.map((row) => row.get("p")))
+    .then((data) => {
+      let postData = [];
+      if (data.length) res.status(200).json({ count: 0, content: [] });
+      else {
+        data.forEach((record) => {
+          postData.push(record.properties);
+        });
+        res.status(200).json({ count: data.length, content: postData });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: err, message: "Server unavailable, try again later." });
     });
 });
 
