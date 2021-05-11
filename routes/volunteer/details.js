@@ -35,4 +35,25 @@ router.get("/:id", checkAuth, (req, res) => {
     });
 });
 
+// FETCH ALL POSTS
+router.get("/posts/:id", checkAuth, (req, res) => {
+  req.neo4j
+    .read(query("all-posts-volunteer"), { userID: req.params.id })
+    .then((result) => result.records.map((row) => row.get("p")))
+    .then((data) => {
+      let postData = [];
+      if (data.length) res.status(200).json({ count: 0, content: [] });
+      else {
+        data.forEach((record) => {
+          postData.push(record.properties);
+        });
+        res.status(200).json({ count: data.length, content: postData });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: err, message: "Server unavailable, try again later." });
+    });
+});
+
 module.exports = router;

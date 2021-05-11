@@ -3,7 +3,6 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const query = require("../cypher");
 const checkAuth = require("../middleware/checkAuth");
-const { route } = require("./volunteer/details");
 
 // FETCH ALL VOLUNTEERS
 // router.get("/", checkAuth, (req, res) => {
@@ -14,10 +13,6 @@ const { route } = require("./volunteer/details");
 //     res.status(200).json(data);
 //   });
 // });
-
-// VIEW All posts by user ID
-
-// router.get("/:userID", checkAuth, (req, res) => {});
 
 // Post details by post ID
 
@@ -116,7 +111,7 @@ router.delete("/:postID", checkAuth, (req, res) => {
     .then((results) => results.records[0])
     .then((data) => {
       res.status(200).json({
-        message: "Post deleted successfully!"
+        message: "Post deleted successfully!",
       });
     })
     .catch((err) => {
