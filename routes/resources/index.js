@@ -7,8 +7,8 @@ router.use("/create", require("./creation"));
 // Resolve a Resource Request
 router.use("/resolve", require("./resolution"));
 // Update request details
-// router.use("/update", require("./update"));
+router.use("/update", require("./update"));
 // Delete request
-// router.use("/delete", require("./delete"));
+router.use("/delete", require("./delete"));
 
 module.exports = router;
