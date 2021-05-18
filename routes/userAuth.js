@@ -28,6 +28,7 @@ router.post("/signup", (req, res, next) => {
             .hash(password, 12)
             .then((hashPass) => {
               let userDetails = {
+                userType: userType,
                 userName: userName,
                 emailID: email,
                 password: hashPass,
@@ -68,6 +69,7 @@ const createVolunteer = (user, req, res) => {
       res.status(200).json({
         token: access_token,
         message: "User added successfully!",
+        userType: data.properties.userType,
         id: data.properties.id,
       });
     })
@@ -87,6 +89,7 @@ const createNgo = (user, req, res) => {
       res.status(200).json({
         token: access_token,
         message: "User added successfully!",
+        userType: data.properties.userType,
         id: data.properties.id,
       });
     })
@@ -103,14 +106,14 @@ const createNgo = (user, req, res) => {
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
   req.neo4j
-    .read("MATCH (n {emailID: $email}) RETURN n {.id, .password}", {
+    .read("MATCH (n {emailID: $email}) RETURN n {.id, .password, .userType}", {
       email: email,
     })
     .then((result) => {
       return result.records[0];
     })
     .then((data) => {
-      if (data.length < 0) {
+      if (!data) {
         return res.status(422).json({ error: "Invalid Email or password" });
       } else {
         console.log(data);
@@ -127,6 +130,7 @@ router.post("/login", (req, res, next) => {
                 token: access_token,
                 message: "Logged in successfully!",
                 id: data._fields[0].id,
+                userType: data._fields[0].userType
               });
             } else {
               return res
