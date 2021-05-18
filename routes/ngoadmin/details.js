@@ -33,15 +33,34 @@ router.get("/:id", checkAuth, (req, res) => {
 router.get("/posts/:id", checkAuth, (req, res) => {
   req.neo4j
     .read(query("all-posts-ngo"), { userID: req.params.id })
-    .then((result) => result.records.map((row) => row.get("p")))
+    .then((result) => {
+      let p = [];
+      let n = result.records[0].get("n").properties;
+      let pts = [];
+      result.records.forEach((row) => {
+        p.push(row.get("p").properties);
+        pts.push(row.get("timestamp").toNumber());
+      });
+      let fetched = {
+        p: p,
+        n: n,
+        t: pts,
+      };
+      return fetched;
+    })
     .then((data) => {
-      let postData = [];
-      if (!data.length) res.status(200).json({ count: 0, content: [] });
+      console.log(data);
+      let postData = {};
+      if (!data) res.status(200).json({ count: 0, content: [] });
       else {
-        data.forEach((record) => {
-          postData.push(record.properties);
-        });
-        res.status(200).json({ count: data.length, content: postData });
+        for (i = 0; i < data.p.length; i++) {
+          data.p[i].timestamp = data.t[i];
+        }
+        postData = {
+          posts: data.p,
+          createdBy: data.n
+        }
+        res.status(200).json({ count: data.p.length, content: postData });
       }
     })
     .catch((err) => {
