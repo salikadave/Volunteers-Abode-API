@@ -1,7 +1,9 @@
 const router = require("express").Router();
 
+// Get All Requests
+router.use("/", require("./details"));
 // Open a Resource Request
-// router.use("/request", require("./request"));
+// router.use("/create", require("./creation"));
 // Resolve a Resource Request
 // router.use("/resolve", require("./resolution"));
 // Update request details

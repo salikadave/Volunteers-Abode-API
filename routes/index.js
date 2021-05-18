@@ -6,6 +6,6 @@ router.use("/volunteer", require("./volunteer"));
 router.use("/ngoadmin", require("./ngoadmin"));
 router.use("/posts", require("./post"));
 router.use("/events", require("./events"));
-router.use("/resource", require("./resources"));
+router.use("/request", require("./resources"));
 
 module.exports = router;
