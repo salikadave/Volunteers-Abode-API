@@ -4,17 +4,49 @@ const bcrypt = require("bcrypt");
 const query = require("../cypher");
 const checkAuth = require("../middleware/checkAuth");
 
-// FETCH ALL VOLUNTEERS
-// router.get("/", checkAuth, (req, res) => {
-// req.neo4j
-//   .read("MATCH (v:Volunteer) RETURN v {.id, .userName, .emailID} as details")
-//   .then((result) => result.records.map((row) => row.get("details")))
-//   .then((data) => {
-//     res.status(200).json(data);
-//   });
-// });
-
-// Post details by post ID
+// FETCH ALL POSTS
+router.get("/all", checkAuth, (req, res) => {
+  req.neo4j
+    .read(query("all-posts"))
+    .then((result) => {
+      let p = [];
+      let u = [];
+      let pts = [];
+      result.records.forEach((row) => {
+        p.push(row.get("p").properties);
+        u.push(row.get("u").properties);
+        pts.push(row.get("timestamp").toNumber());
+      });
+      let fetched = {
+        p: p,
+        u: u,
+        t: pts,
+      };
+      return fetched;
+    })
+    .then((data) => {
+      console.log(data);
+      let postData = {};
+      if (!data) res.status(200).json({ count: 0, content: [] });
+      else {
+        for (i = 0; i < data.p.length; i++) {
+          data.p[i].timestamp = data.t[i];
+          data.p[i].createdBy = data.u[i]
+        }
+        postData = {
+          posts: data.p
+          // createdBy: data.u,
+        };
+        res.status(200).json({ count: data.p.length, content: postData });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res
+        .status(500)
+        .json({ error: err, message: "Server unavailable, try again later." });
+    });
+});
 
 // Create post --> check usertype and then select the cypher query
 router.post("/", checkAuth, (req, res) => {
