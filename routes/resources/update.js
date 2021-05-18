@@ -14,7 +14,7 @@ router.put("/:id", checkAuth, (req, res) => {
   };
   req.neo4j
     .write(
-      "MATCH (p:Post {p_id: $id}) SET p += $properties RETURN p",
+      "MATCH (r:Request {rr_id: $id}) SET r += $properties RETURN r",
       cypherParams
     )
     .then((results) => results.records[0])
