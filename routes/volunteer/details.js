@@ -27,7 +27,7 @@ router.get("/:id", checkAuth, (req, res) => {
     .read(query("get-volunteer-detail"), { userID: req.params.id })
     .then((result) => result.records[0].get("v"))
     .then((data) => {
-      res.status(200).json({ userData: data.properties });
+      res.status(200).json({ userType: 0, userData: data.properties });
     })
     .catch((err) => {
       console.log(err);
@@ -42,7 +42,7 @@ router.get("/posts/:id", checkAuth, (req, res) => {
     .then((result) => result.records.map((row) => row.get("p")))
     .then((data) => {
       let postData = [];
-      if (data.length) res.status(200).json({ count: 0, content: [] });
+      if (!data.length) res.status(200).json({ count: 0, content: [] });
       else {
         data.forEach((record) => {
           postData.push(record.properties);
@@ -52,7 +52,9 @@ router.get("/posts/:id", checkAuth, (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: err, message: "Server unavailable, try again later." });
+      res
+        .status(500)
+        .json({ error: err, message: "Server unavailable, try again later." });
     });
 });
 
