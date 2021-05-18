@@ -6,7 +6,7 @@ const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
 // FETCH ALL REQUESTS
-router.get("", checkAuth, (req, res) => {
+router.get("/all", checkAuth, (req, res) => {
   req.neo4j
     .read("MATCH (rr:Request) RETURN rr")
     .then((result) => result.records.map((row) => row.get("rr")))
