@@ -1,7 +1,8 @@
 MATCH (v: Volunteer {id: $creatorID})
 MERGE (v)-[rq:REQUESTED {timestamp: timestamp()}]->(rr: Request 
 {rr_id: randomUUID(), 
-category: $catArr, 
+category: $catArr,
+isResolved: $isResolved, 
 title: $reqTitle, 
 details: $reqDetails, 
 amtRequired: $amtArr, 

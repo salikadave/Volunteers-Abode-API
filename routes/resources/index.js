@@ -5,7 +5,7 @@ router.use("/", require("./details"));
 // Open a Resource Request
 router.use("/create", require("./creation"));
 // Resolve a Resource Request
-// router.use("/resolve", require("./resolution"));
+router.use("/resolve", require("./resolution"));
 // Update request details
 // router.use("/update", require("./update"));
 // Delete request

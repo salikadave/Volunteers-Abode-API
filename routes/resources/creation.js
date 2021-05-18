@@ -6,7 +6,6 @@ const checkAuth = require("../../middleware/checkAuth");
 
 // Create Request
 router.post("/", checkAuth, (req, res) => {
-  console.log("inside request");
   const params = {
     creatorID: req.body.reqBy,
     catArr: req.body.categories,
@@ -16,6 +15,7 @@ router.post("/", checkAuth, (req, res) => {
     count: req.body.volCount,
     coordsArr: req.body.mapCoords,
     img: req.body.imageURL,
+    isResolved: false || req.body.isResolved,
   };
   if (
     !params.img ||
