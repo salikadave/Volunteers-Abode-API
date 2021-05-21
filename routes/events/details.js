@@ -11,7 +11,7 @@ const checkAuth = require("../../middleware/checkAuth");
 
 // GET recommended events for a user
 
-// GET events attended by a user
+// GET events registered by a user
 
 // GET popular events ie. number of participants
 

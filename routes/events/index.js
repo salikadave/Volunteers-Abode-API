@@ -1,10 +1,14 @@
 const router = require("express").Router();
 
-// Fetch event details
-router.use("/get", require("./details"));
-// Update volunteer details
+// Get All Event
+router.use("/", require("./details"));
+// Create an Event
+// router.use("/create", require("./creation"));
+// Register for a Event
+// router.use("/resolve", require("./resolution"));
+// Update Event details
 // router.use("/update", require("./update"));
-// // Delete Volunteer
+// Delete Event
 // router.use("/delete", require("./delete"));
 
 module.exports = router;
