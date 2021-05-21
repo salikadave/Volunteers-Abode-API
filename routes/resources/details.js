@@ -14,7 +14,12 @@ router.get("/all", checkAuth, (req, res) => {
       if (!data.length)
         res.status(404).send({ count: 0, message: "No records found!" });
       else {
-        res.status(200).json(data);
+        let requestList = []
+        console.log(data)
+        data.forEach(row => {
+          requestList.push(row.properties)
+        })
+        res.status(200).json(requestList);
       }
     })
     .catch((err) => {
@@ -36,7 +41,7 @@ router.get("/:id", checkAuth, (req, res) => {
       if (!data)
         res.status(404).send({ count: 0, message: "No records found!" });
       else {
-        res.status(200).json({ requestData: data });
+        res.status(200).json({ requestData: data[0].properties });
       }
     })
     .catch((err) => {
