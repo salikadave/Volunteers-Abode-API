@@ -8,18 +8,30 @@ const checkAuth = require("../../middleware/checkAuth");
 // FETCH ALL REQUESTS
 router.get("/all", checkAuth, (req, res) => {
   req.neo4j
-    .read("MATCH (rr:Request) RETURN rr")
-    .then((result) => result.records.map((row) => row.get("rr")))
+    .read("MATCH (rr:Request)<-[rs:REQUESTED]-(a) RETURN rr, a")
+    .then((result) => {
+      let r = {};
+      let a = {};
+      let fetched = [];
+      result.records.map((row) => {
+        r = row.get("rr").properties;
+        // r.category = r.category.toString();
+        a = row.get("a").properties;
+        let result = { details: r, reqBy: a };
+        fetched.push(result);
+      });
+      // console.log(fetched)
+      return fetched;
+    })
     .then((data) => {
       if (!data.length)
         res.status(404).send({ count: 0, message: "No records found!" });
       else {
-        let requestList = []
-        console.log(data)
-        data.forEach(row => {
-          requestList.push(row.properties)
-        })
-        res.status(200).json(requestList);
+        // let requestList = [];
+        // data.forEach((row) => {
+        //   requestList.push(row.properties);
+        // });
+        res.status(200).json(data);
       }
     })
     .catch((err) => {

@@ -16,7 +16,7 @@ router.post("/", checkAuth, (req, res) => {
     count: req.body.volCount,
     coordsArr: req.body.mapCoords,
     img: req.body.imageURL,
-    isResolved: false || req.body.isResolved,
+    isResolved: false
   };
   if (
     !params.creatorID ||
