@@ -6,6 +6,7 @@ const checkAuth = require("../../middleware/checkAuth");
 
 // Create Request
 router.post("/", checkAuth, (req, res) => {
+  let userType = req.body.userType;
   const params = {
     creatorID: req.body.reqBy,
     catArr: req.body.categories,
@@ -18,31 +19,46 @@ router.post("/", checkAuth, (req, res) => {
     isResolved: false || req.body.isResolved,
   };
   if (
-    !params.img ||
     !params.creatorID ||
     !params.reqTitle ||
     !params.amtArr ||
-    !params.catArr
+    !params.catArr 
   ) {
     return res.status(422).json({ error: "Please add all the fields" });
   } else {
-    req.neo4j
-      .write(query("create-request-volunteer"), params)
-      .then((result) => {
-        let fetched = {
-          reqDetails: result.records[0].get("rr"),
-          timestamp: result.records[0].get("timestamp").toNumber(),
-        };
-        return fetched;
-      })
-      .then((data) => {
-        res.status(200).send({
-          message: "Request added successfully!",
-          details: { ...data.reqDetails.properties, timestamp: data.timestamp },
+    switch (userType) {
+      case 0:
+        reqCreationHandler(req, res, params, "create-request-volunteer");
+        break;
+      case 1:
+        reqCreationHandler(req, res, params, "create-request-ngo");
+        break;
+      default:
+        console.log("Default statement switch");
+        res.status(422).json({
+          message: "User type not mentioned!",
         });
-      })
-      .catch((err) => console.log(err));
+    }
   }
 });
+
+const reqCreationHandler = (req, res, params, queryType) => {
+  req.neo4j
+    .write(query(queryType), params)
+    .then((result) => {
+      let fetched = {
+        reqDetails: result.records[0].get("rr"),
+        timestamp: result.records[0].get("timestamp").toNumber(),
+      };
+      return fetched;
+    })
+    .then((data) => {
+      res.status(200).send({
+        message: "Request added successfully!",
+        details: { ...data.reqDetails.properties, timestamp: data.timestamp },
+      });
+    })
+    .catch((err) => console.log(err));
+}
 
 module.exports = router;

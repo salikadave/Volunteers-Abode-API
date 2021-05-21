@@ -9,6 +9,7 @@ const checkAuth = require("../../middleware/checkAuth");
 router.put("/", checkAuth, (req, res) => {
   const params = {
     resID: req.body.resBy,
+    mobNumber: req.body.mobile,
     reqID: req.body.reqID,
   };
   if (!params.resID || !params.reqID) {
