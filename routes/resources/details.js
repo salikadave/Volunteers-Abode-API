@@ -27,10 +27,6 @@ router.get("/all", checkAuth, (req, res) => {
       if (!data.length)
         res.status(404).send({ count: 0, message: "No records found!" });
       else {
-        // let requestList = [];
-        // data.forEach((row) => {
-        //   requestList.push(row.properties);
-        // });
         res.status(200).json(data);
       }
     })
@@ -42,18 +38,37 @@ router.get("/all", checkAuth, (req, res) => {
     });
 });
 
-// FETCH SINGLE REQUEST DETAILS
-router.get("/:id", checkAuth, (req, res) => {
+// FETCH SINGLE RESOLVED REQUEST DETAILS
+router.get("/resolved/:id", checkAuth, (req, res) => {
   req.neo4j
-    .read("MATCH (rr:Request {rr_id: $userID}) RETURN rr", {
-      userID: req.params.id,
+    .read(
+      "MATCH (b)-[rq:REQUESTED]->(rr:Request {rr_id: $userID})<-[rs:RESOLVED]-(a) RETURN rr,a,b",
+      {
+        userID: req.params.id,
+      }
+    )
+    .then((result) => {
+      let r = {};
+      let a = [];
+      let b = {};
+      let fetched = {};
+      console.log(result.records);
+      result.records.map((row) => {
+        r = row.get("rr").properties;
+        b = row.get("b").properties;
+        a.push(row.get("a").properties);
+        // b.push(row.get("b").properties);
+      });
+      fetched["reqDetails"] = r;
+      fetched["requestedDetails"] = b;
+      fetched["resolvedDetails"] = a;
+      return fetched;
     })
-    .then((result) => result.records[0].get("rr"))
     .then((data) => {
       if (!data)
         res.status(404).send({ count: 0, message: "No records found!" });
       else {
-        res.status(200).json({ requestData: data[0].properties });
+        res.status(200).json({ data });
       }
     })
     .catch((err) => {
