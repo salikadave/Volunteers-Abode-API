@@ -47,6 +47,7 @@ router.get("/participants", checkAuth, (req, res) => {
   }
 });
 
+// GET events by NGO
 router.get("/ngo", checkAuth, (req, res) => {
   let params = {
     ngoID: req.body.ngoID,
@@ -98,13 +99,53 @@ router.get("/ngo", checkAuth, (req, res) => {
   }
 });
 
-// GET events by NGO
+// Get a volunteer's registered events
+router.get("/registered", checkAuth, (req, res) => {
+  let params = {
+    id: req.body.volID,
+  };
+  if (!params.id)
+    return res.status(422).json({ error: "Please add all the fields" });
+  else {
+    req.neo4j
+      .read(query("volunteer-event-registrations"), params)
+      .then((result) => {
+        let e = {};
+        let v = {};
+        let ts = 0;
+        let fetched = [];
+        result.records.map((row) => {
+          e = row.get("e").properties;
+          v = row.get("v").properties;
+          ts = row.get("registered_at").toNumber();
+          let result = { event: e, registered_at: ts };
+          fetched.push(result);
+        });
+        fetched.push(v);
+        return fetched;
+      })
+      .then((data) => {
+        if (!data)
+          res.status(404).send({ count: 0, message: "No records found!" });
+        else {
+          let userData = data.pop();
+          res.status(200).json({ data, userData });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          err: err,
+          message: "Server currently not available, please try again later.",
+        });
+      });
+  }
+});
+
+
 
 // GET events by category
 
 // GET recommended events for a user
-
-// GET events registered by a user
 
 // GET popular events ie. number of participants
 
