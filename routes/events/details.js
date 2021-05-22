@@ -47,9 +47,60 @@ router.get("/participants", checkAuth, (req, res) => {
   }
 });
 
-// GET events by category
+router.get("/ngo", checkAuth, (req, res) => {
+  let params = {
+    ngoID: req.body.ngoID,
+  };
+  if (!params.ngoID)
+    return res.status(422).json({ error: "Please add all the fields" });
+  else {
+    req.neo4j
+      .read(query("all-events-conducted"), params)
+      .then((result) => {
+        let e = {};
+        let n = {};
+        let ts = 0;
+        let fetched = [];
+        result.records.map((row) => {
+          e = row.get("e").properties;
+          n = row.get("n").properties;
+          ts = row.get("created_at").toNumber();
+          let result = { events: e, timestamp: ts };
+          fetched.push(result);
+        });
+        fetched.push(n);
+        return fetched;
+      })
+      .then((data) => {
+        if (!data)
+          res.status(404).send({ count: 0, message: "No records found!" });
+        else {
+          let ngoData = data.pop();
+          let pastEvt = [];
+          let upcomingEvt = [];
+          data.forEach((record) => {
+            if (record.events.isUpcoming) {
+              upcomingEvt.push(record.events);
+            } else {
+              pastEvt.push(record.events);
+            }
+          });
+          res.status(200).json({ pastEvt, upcomingEvt, ngoData });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          err: err,
+          message: "Server currently not available, please try again later.",
+        });
+      });
+  }
+});
 
 // GET events by NGO
+
+// GET events by category
 
 // GET recommended events for a user
 
