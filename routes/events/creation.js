@@ -61,6 +61,37 @@ const evtCreationHandler = (req, res, params, queryType) => {
 };
 
 // Register for Event
-router.post("/register", checkAuth, (req, res) => {});
+router.post("/register", checkAuth, (req, res) => {
+  let params = {
+    eventID: req.body.eventID,
+    regBy: req.body.regBy,
+  };
+  if (!params.eventID || !params.regBy) {
+    return res.status(422).json({ error: "Please add all the fields" });
+  } else {
+    // console.log(params);
+    evtRegistrationHandler(req, res, params, "register-event-volunteer");
+  }
+});
+
+const evtRegistrationHandler = (req, res, params, queryType) => {
+  req.neo4j
+    .write(query(queryType), params)
+    .then((result) => {
+      let fetched = {
+        evtDetails: result.records[0].get("e").properties,
+        volDetails: result.records[0].get("v").properties,
+        registeredAt: result.records[0].get("registered_at").toNumber(),
+      };
+      return fetched;
+    })
+    .then((data) => {
+      res.status(200).send({
+        message: "Registered successfully!",
+        details: { ...data },
+      });
+    })
+    .catch((err) => console.log(err));
+};
 
 module.exports = router;
