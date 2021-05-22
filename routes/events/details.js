@@ -168,9 +168,48 @@ router.get("/registered", checkAuth, (req, res) => {
   }
 });
 
-// GET events by category
-
 // GET recommended events for a user
+router.get("/interests/:id", (req, res) => {
+  let params = {
+    userID: req.params.id,
+  };
+  if (!params.userID)
+    return res.status(422).json({ error: "Please add all the fields" });
+  else {
+    req.neo4j
+      .read(query("events-from-interests"), params)
+      .then((result) => {
+        let e = {};
+        let n = {};
+        let ts = 0;
+        let fetched = [];
+        result.records.map((row) => {
+          e = row.get("e").properties;
+          n = row.get("n").properties;
+          ts = row.get("created_at").toNumber();
+          let result = { event: e, conductedBy: n, created_at: ts };
+          fetched.push(result);
+        });
+        return fetched;
+      })
+      .then((data) => {
+        if (!data)
+          res.status(404).send({ count: 0, message: "No records found!" });
+        else {
+          res.status(200).json({ data });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json({
+          err: err,
+          message: "Server currently not available, please try again later.",
+        });
+      });
+  }
+});
+
+// GET events by category
 
 // GET popular events ie. number of participants
 

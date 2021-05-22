@@ -3,6 +3,7 @@ CREATE (n:NgoAdmin {
     userType: $userType,
     userName: $userName,
     password: $password,
-    emailID: $emailID
+    emailID: $emailID,
+    joinedOn: timestamp()
 })
 RETURN n

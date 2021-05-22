@@ -3,6 +3,7 @@ CREATE (v:Volunteer {
     userType: $userType,
     userName: $userName,
     password: $password,
-    emailID: $emailID
+    emailID: $emailID,
+    joinedOn: timestamp()
 })
 RETURN v
