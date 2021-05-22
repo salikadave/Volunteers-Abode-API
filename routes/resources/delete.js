@@ -6,7 +6,7 @@ const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
 // UPDATE BY ID
-router.delete("/:postID", checkAuth, (req, res) => {
+router.delete("/:reqID", checkAuth, (req, res) => {
   let cypherParams = {
     reqID: req.params.reqID,
     creatorID: req.body.userID,
@@ -16,13 +16,13 @@ router.delete("/:postID", checkAuth, (req, res) => {
     .then((results) => results.records[0])
     .then((data) => {
       res.status(200).json({
-        message: "Post deleted successfully!",
+        message: "Request deleted successfully!",
       });
     })
     .catch((err) => {
       console.log(err);
       res.status(500).json({
-        message: "Error occured in deleting post",
+        message: "Error occured in deleting request.",
         err: err,
       });
     });

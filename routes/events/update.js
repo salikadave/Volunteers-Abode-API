@@ -14,7 +14,7 @@ router.put("/:id", checkAuth, (req, res) => {
   };
   req.neo4j
     .write(
-      "MATCH (r:Request {rr_id: $id}) SET r += $properties RETURN r",
+      "MATCH (e:Event {evt_id: $id}) SET r += $properties RETURN e",
       cypherParams
     )
     .then((results) => results.records[0])
@@ -28,7 +28,7 @@ router.put("/:id", checkAuth, (req, res) => {
     .catch((err) => {
       console.log(err);
       res.status(500).json({
-        message: "Error occured in updating resource details",
+        message: "Error occured in updating event details",
         err: err,
       });
     });
