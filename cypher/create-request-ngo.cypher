@@ -1,5 +1,5 @@
 MATCH (n: NgoAdmin {id: $creatorID})
-MERGE (v)-[rq:REQUESTED {timestamp: timestamp()}]->(rr: Request 
+MERGE (n)-[rq:REQUESTED {timestamp: timestamp()}]->(rr: Request 
 {rr_id: randomUUID(), 
 category: $catArr,
 isResolved: $isResolved, 

@@ -1,9 +1,9 @@
 const router = require("express").Router();
 
 // Get All Event
-router.use("/", require("./details"));
+// router.use("/", require("./details"));
 // Create an Event
-// router.use("/create", require("./creation"));
+router.use("/create", require("./creation"));
 // Register for a Event
 // router.use("/resolve", require("./resolution"));
 // Update Event details
