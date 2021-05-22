@@ -5,6 +5,48 @@ const jwt = require("jsonwebtoken");
 const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
+// Registered Participants
+router.get("/participants", checkAuth, (req, res) => {
+  let params = {
+    id: req.body.eventID,
+  };
+  if (!params.id)
+    return res.status(422).json({ error: "Please add all the fields" });
+  else {
+    req.neo4j
+      .read(query("event-registrations"), params)
+      .then((result) => {
+        let e = {};
+        let a = {};
+        let ts = 0;
+        let fetched = [];
+        result.records.map((row) => {
+          e = row.get("e").properties;
+          a = row.get("a").properties;
+          ts = row.get("registered_at").toNumber();
+          let result = { users: a, timestamp: ts };
+          fetched.push(result);
+        });
+        fetched.push(e);
+        return fetched;
+      })
+      .then((data) => {
+        if (!data)
+          res.status(404).send({ count: 0, message: "No records found!" });
+        else {
+          let evtData = data.pop();
+          res.status(200).json({ data, evtData });
+        }
+      })
+      .catch((err) => {
+        res.status(500).json({
+          err: err,
+          message: "Server currently not available, please try again later.",
+        });
+      });
+  }
+});
+
 // GET events by category
 
 // GET events by NGO
