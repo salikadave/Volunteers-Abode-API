@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
+const { route } = require("./update");
 
 // Create Request
 router.post("/new", checkAuth, (req, res) => {
@@ -58,5 +59,8 @@ const evtCreationHandler = (req, res, params, queryType) => {
     })
     .catch((err) => console.log(err));
 };
+
+// Register for Event
+router.post("/register", checkAuth, (req, res) => {});
 
 module.exports = router;

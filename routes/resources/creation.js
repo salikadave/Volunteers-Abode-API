@@ -11,11 +11,11 @@ router.post("/", checkAuth, (req, res) => {
     creatorID: req.body.reqBy,
     catArr: req.body.categories,
     reqTitle: req.body.title,
-    reqDetails: req.body.details,
+    reqDetails: req.body.details || "",
     amtArr: req.body.amtRequired,
-    count: req.body.volCount,
-    coordsArr: req.body.mapCoords,
-    img: req.body.imageURL,
+    count: req.body.volCount || 0,
+    coordsArr: req.body.mapCoords || [],
+    img: req.body.imageURL || "",
     isResolved: false
   };
   if (

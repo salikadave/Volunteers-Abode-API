@@ -8,16 +8,20 @@ const checkAuth = require("../../middleware/checkAuth");
 // FETCH ALL REQUESTS
 router.get("/all", checkAuth, (req, res) => {
   req.neo4j
-    .read("MATCH (rr:Request)<-[rs:REQUESTED]-(a) RETURN rr, a")
+    .read(
+      "MATCH (rr:Request)<-[rs:REQUESTED]-(a) RETURN rr, a,rs.timestamp as timestamp ORDER BY rs.timestamp DESC"
+    )
     .then((result) => {
       let r = {};
       let a = {};
+      let ts = 0;
       let fetched = [];
       result.records.map((row) => {
         r = row.get("rr").properties;
         // r.category = r.category.toString();
         a = row.get("a").properties;
-        let result = { details: r, reqBy: a };
+        ts = row.get("timestamp").toNumber();
+        let result = { details: r, reqBy: a, timestamp: ts };
         fetched.push(result);
       });
       // console.log(fetched)
@@ -52,7 +56,7 @@ router.get("/resolved/:id", checkAuth, (req, res) => {
       let a = [];
       let b = {};
       let fetched = {};
-      console.log(result.records);
+      // console.log(result.records);
       result.records.map((row) => {
         r = row.get("rr").properties;
         b = row.get("b").properties;
