@@ -5,6 +5,33 @@ const jwt = require("jsonwebtoken");
 const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
+// Get details of an event
+router.get("/:id", checkAuth, (req, res) => {
+  let params = {
+    id: req.params.id,
+  };
+  req.neo4j
+    .read("MATCH (e:Event {evt_id: $id})<-[c:CONDUCTED]-(a) RETURN a,e", params)
+    .then((result) => {
+      let e = result.records[0].get("e").properties;
+      let a = result.records[0].get("a").properties;
+      let fetched = {
+        evtDetails: e,
+        conductedBy: a,
+      };
+      return fetched;
+    })
+    .then((data) => {
+      res.status(200).json(data);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        err: err,
+        message: "Server currently not available, please try again later.",
+      });
+    });
+});
+
 // Registered Participants
 router.get("/participants", checkAuth, (req, res) => {
   let params = {
@@ -140,8 +167,6 @@ router.get("/registered", checkAuth, (req, res) => {
       });
   }
 });
-
-
 
 // GET events by category
 
