@@ -77,9 +77,9 @@ router.get("/:id", checkAuth, (req, res) => {
 });
 
 // Registered Participants
-router.get("/participants", checkAuth, (req, res) => {
+router.get("/participants/:eventID", checkAuth, (req, res) => {
   let params = {
-    id: req.body.eventID,
+    id: req.params.eventID,
   };
   if (!params.id)
     return res.status(422).json({ error: "Please add all the fields" });
@@ -95,7 +95,7 @@ router.get("/participants", checkAuth, (req, res) => {
           e = row.get("e").properties;
           a = row.get("a").properties;
           ts = row.get("registered_at").toNumber();
-          let result = { users: a, timestamp: ts };
+          let result = { user: a, timestamp: ts };
           fetched.push(result);
         });
         fetched.push(e);
