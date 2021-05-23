@@ -5,6 +5,50 @@ const jwt = require("jsonwebtoken");
 const query = require("../../cypher");
 const checkAuth = require("../../middleware/checkAuth");
 
+// GET details of all events
+router.get("/all", checkAuth, (req, res) => {
+  req.neo4j
+    .read(query("all-general-events"))
+    .then((result) => {
+      let e = {};
+      let n = {};
+      let ts = 0;
+      let fetched = [];
+      result.records.map((row) => {
+        e = row.get("e").properties;
+        n = row.get("n").properties;
+        ts = row.get("created_at").toNumber();
+        let result = { event: e, conductedBy: n, timestamp: ts };
+        fetched.push(result);
+      });
+      return fetched;
+    })
+    .then((data) => {
+      if (!data)
+        res.status(404).send({ count: 0, message: "No records found!" });
+      else {
+        // let ngoData = data.pop();
+        // let pastEvt = [];
+        // let upcomingEvt = [];
+        // data.forEach((record) => {
+        //   if (record.events.isUpcoming) {
+        //     upcomingEvt.push(record.events);
+        //   } else {
+        //     pastEvt.push(record.events);
+        //   }
+        // });
+        res.status(200).json({ data });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        err: err,
+        message: "Server currently not available, please try again later.",
+      });
+    });
+});
+
 // Get details of an event
 router.get("/:id", checkAuth, (req, res) => {
   let params = {
