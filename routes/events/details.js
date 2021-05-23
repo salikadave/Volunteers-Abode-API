@@ -171,9 +171,9 @@ router.get("/ngo/:ngoID", checkAuth, (req, res) => {
 });
 
 // Get a volunteer's registered events
-router.get("/registered", checkAuth, (req, res) => {
+router.get("/registered/:volID", checkAuth, (req, res) => {
   let params = {
-    id: req.body.volID,
+    id: req.params.volID,
   };
   if (!params.id)
     return res.status(422).json({ error: "Please add all the fields" });
@@ -204,6 +204,7 @@ router.get("/registered", checkAuth, (req, res) => {
         }
       })
       .catch((err) => {
+        console.log(err);
         res.status(500).json({
           err: err,
           message: "Server currently not available, please try again later.",
