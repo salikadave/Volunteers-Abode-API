@@ -119,9 +119,9 @@ router.get("/participants", checkAuth, (req, res) => {
 });
 
 // GET events by NGO
-router.get("/ngo", checkAuth, (req, res) => {
+router.get("/ngo/:ngoID", checkAuth, (req, res) => {
   let params = {
-    ngoID: req.body.ngoID,
+    ngoID: req.params.ngoID,
   };
   if (!params.ngoID)
     return res.status(422).json({ error: "Please add all the fields" });
